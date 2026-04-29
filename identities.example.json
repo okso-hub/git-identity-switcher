@@ -1,0 +1,14 @@
+{
+  "identities": [
+    {
+      "name":     "personal",
+      "username": "Jane Doe",
+      "email":    "jane@personal.example.com"
+    },
+    {
+      "name":     "work",
+      "username": "Jane Doe",
+      "email":    "jane.doe@company.example.com"
+    }
+  ]
+}

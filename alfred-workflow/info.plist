@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Alfred Workflow: Git Identity Switcher
+  ══════════════════════════════════════
+  Objects
+  ───────
+  1. Script Filter  (keyword "git-id")
+     UID: 1A2B3C4D-E5F6-7890-ABCD-111111111111
+     → reads ~/.git-identities.json and outputs Alfred JSON items
+
+  2. Run Script     (bash — calls switch-identity.sh)
+     UID: 2B3C4D5E-F6A7-8901-BCDE-222222222222
+     → receives the chosen identity name via {query}
+
+  3. Post Notification
+     UID: 3C4D5E6F-A7B8-9012-CDEF-333333333333
+     → shows the result string returned by switch-identity.sh
+
+  Connections
+  ───────────
+  Script Filter  ──(arg)──►  Run Script  ──(stdout)──►  Notification
+-->
+<plist version="1.0">
+<dict>
+
+  <!-- ── Workflow metadata ────────────────────────────────────────────── -->
+  <key>name</key>
+  <string>Git Identity Switcher</string>
+
+  <key>description</key>
+  <string>Quickly switch your global git user.name and user.email between saved identities.</string>
+
+  <key>createdby</key>
+  <string>git-identity-switcher</string>
+
+  <key>webaddress</key>
+  <string>https://github.com/okso-hub/git-identity-switcher</string>
+
+  <key>version</key>
+  <string>1.0.0</string>
+
+  <key>readme</key>
+  <string>Switch between git identities (name + email) stored in ~/.git-identities.json.
+
+Trigger: type "git-id" in Alfred, then choose a profile.
+
+Setup:
+  1. Run install.sh once to copy the helper scripts.
+  2. Edit ~/.git-identities.json with your personal and work identities.
+  3. Import this workflow by double-clicking the .alfredworkflow file.</string>
+
+  <key>category</key>
+  <string>Tools</string>
+
+  <key>uidata</key>
+  <dict/>
+
+  <!-- ── Objects ──────────────────────────────────────────────────────── -->
+  <key>objects</key>
+  <array>
+
+    <!-- ① Script Filter ─────────────────────────────────────────────── -->
+    <dict>
+      <key>type</key>
+      <string>alfred.workflow.input.scriptfilter</string>
+
+      <key>uid</key>
+      <string>1A2B3C4D-E5F6-7890-ABCD-111111111111</string>
+
+      <key>version</key>
+      <integer>3</integer>
+
+      <key>config</key>
+      <dict>
+        <!-- Keyword the user types in Alfred -->
+        <key>keyword</key>
+        <string>git-id</string>
+
+        <key>title</key>
+        <string>Switch Git Identity</string>
+
+        <key>subtext</key>
+        <string>Choose an identity from ~/.git-identities.json</string>
+
+        <key>withspace</key>
+        <true/>
+
+        <!-- Re-run the filter as the user types -->
+        <key>runningsubtext</key>
+        <string>Searching identities…</string>
+
+        <key>type</key>
+        <integer>0</integer>
+
+        <!-- The script that produces the Alfred JSON items list -->
+        <key>script</key>
+        <string>IDENTITIES_FILE="$HOME/.git-identities.json"
+
+if [ ! -f "$IDENTITIES_FILE" ]; then
+  echo "{\"items\":[{\"title\":\"No identities file found\",\"subtitle\":\"Edit ~/.git-identities.json\",\"valid\":false}]}"
+  exit 0
+fi
+
+python3 - "{query}" "$IDENTITIES_FILE" &lt;&lt;'PYEOF'
+import json, sys
+
+query           = sys.argv[1].lower()
+identities_file = sys.argv[2]
+
+with open(identities_file) as f:
+    data = json.load(f)
+
+items = []
+for identity in data.get("identities", []):
+    name     = identity.get("name", "")
+    username = identity.get("username", "")
+    email    = identity.get("email", "")
+
+    if query and query not in name.lower() and query not in username.lower() and query not in email.lower():
+        continue
+
+    items.append({
+        "uid":          name,
+        "title":        name.title(),
+        "subtitle":     f"{username} &lt;{email}&gt;",
+        "arg":          name,
+        "autocomplete": name,
+    })
+
+if not items:
+    items.append({
+        "title":    f"No match for \"{sys.argv[1]}\"",
+        "subtitle": "Try a different search term",
+        "valid":    False,
+    })
+
+print(json.dumps({"items": items}))
+PYEOF</string>
+
+        <key>scriptargtype</key>
+        <integer>1</integer>
+
+        <key>queuedelay</key>
+        <integer>3</integer>
+
+        <key>queuemode</key>
+        <integer>2</integer>
+
+        <key>argumenttype</key>
+        <integer>0</integer>
+      </dict>
+    </dict>
+
+    <!-- ② Run Script ────────────────────────────────────────────────── -->
+    <dict>
+      <key>type</key>
+      <string>alfred.workflow.action.script</string>
+
+      <key>uid</key>
+      <string>2B3C4D5E-F6A7-8901-BCDE-222222222222</string>
+
+      <key>version</key>
+      <integer>2</integer>
+
+      <key>config</key>
+      <dict>
+        <key>type</key>
+        <integer>0</integer>
+
+        <!-- The identity name is passed in via {query} (= the "arg" from Script Filter) -->
+        <key>script</key>
+        <string>IDENTITY="{query}"
+IDENTITIES_FILE="$HOME/.git-identities.json"
+
+if [ ! -f "$IDENTITIES_FILE" ]; then
+  echo "Error: $IDENTITIES_FILE not found."
+  exit 1
+fi
+
+IDENTITY_JSON=$(python3 - &lt;&lt;PYEOF
+import json, sys
+
+with open("$IDENTITIES_FILE") as f:
+    data = json.load(f)
+
+for identity in data.get("identities", []):
+    if identity.get("name") == "$IDENTITY":
+        print(identity["username"])
+        print(identity["email"])
+        sys.exit(0)
+
+sys.exit(1)
+PYEOF
+) || {
+  echo "Identity '$IDENTITY' not found."
+  exit 1
+}
+
+GIT_USER_NAME=$(echo "$IDENTITY_JSON"  | head -1)
+GIT_USER_EMAIL=$(echo "$IDENTITY_JSON" | tail -1)
+
+git config --global user.name  "$GIT_USER_NAME"
+git config --global user.email "$GIT_USER_EMAIL"
+
+echo "Switched to $GIT_USER_NAME &lt;$GIT_USER_EMAIL&gt;"</string>
+
+        <key>escaping</key>
+        <integer>0</integer>
+      </dict>
+    </dict>
+
+    <!-- ③ Post Notification ─────────────────────────────────────────── -->
+    <dict>
+      <key>type</key>
+      <string>alfred.workflow.output.notification</string>
+
+      <key>uid</key>
+      <string>3C4D5E6F-A7B8-9012-CDEF-333333333333</string>
+
+      <key>version</key>
+      <integer>1</integer>
+
+      <key>config</key>
+      <dict>
+        <key>title</key>
+        <string>Git Identity Switcher</string>
+
+        <!-- {query} here is the stdout of the Run Script step -->
+        <key>text</key>
+        <string>{query}</string>
+      </dict>
+    </dict>
+
+  </array>
+
+  <!-- ── Connections ──────────────────────────────────────────────────── -->
+  <!--
+    Script Filter  ──►  Run Script  ──►  Notification
+  -->
+  <key>connections</key>
+  <dict>
+
+    <!-- Script Filter → Run Script -->
+    <key>1A2B3C4D-E5F6-7890-ABCD-111111111111</key>
+    <array>
+      <dict>
+        <key>destinationuid</key>
+        <string>2B3C4D5E-F6A7-8901-BCDE-222222222222</string>
+        <key>modifiers</key>
+        <integer>0</integer>
+        <key>modifiersubtext</key>
+        <string></string>
+        <key>vitoclose</key>
+        <true/>
+      </dict>
+    </array>
+
+    <!-- Run Script → Notification -->
+    <key>2B3C4D5E-F6A7-8901-BCDE-222222222222</key>
+    <array>
+      <dict>
+        <key>destinationuid</key>
+        <string>3C4D5E6F-A7B8-9012-CDEF-333333333333</string>
+        <key>modifiers</key>
+        <integer>0</integer>
+        <key>modifiersubtext</key>
+        <string></string>
+        <key>vitoclose</key>
+        <false/>
+      </dict>
+    </array>
+
+  </dict>
+
+</dict>
+</plist>

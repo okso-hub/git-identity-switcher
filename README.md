@@ -1,1 +1,139 @@
 # git-identity-switcher
+
+An Alfred workflow (+ standalone shell scripts) that lets you switch your
+global `git user.name` and `git user.email` between saved profiles with a
+single command — no more `vim ~/.gitconfig`.
+
+---
+
+## How it works
+
+1. You keep a small JSON file (`~/.git-identities.json`) that lists your git
+   profiles (name, email).
+2. Type `git-id` in Alfred, pick a profile, press **Enter**.
+3. `git config --global user.name` and `git config --global user.email` are
+   updated instantly, and a macOS notification confirms the switch.
+
+You can also use the scripts directly from the terminal without Alfred.
+
+---
+
+## Quick start
+
+### 1 — Install the helper scripts
+
+```bash
+git clone https://github.com/okso-hub/git-identity-switcher.git
+cd git-identity-switcher
+chmod +x install.sh
+./install.sh
+```
+
+`install.sh` copies the three helper scripts to `/usr/local/bin` (or `~/bin`)
+and creates `~/.git-identities.json` from the example file if it does not
+already exist.
+
+### 2 — Edit `~/.git-identities.json`
+
+Replace the example values with your real identities:
+
+```json
+{
+  "identities": [
+    {
+      "name":     "personal",
+      "username": "Jane Doe",
+      "email":    "jane@personal.example.com"
+    },
+    {
+      "name":     "work",
+      "username": "Jane Doe",
+      "email":    "jane.doe@company.example.com"
+    }
+  ]
+}
+```
+
+You can add as many profiles as you like.
+
+### 3 — Import the Alfred workflow
+
+```bash
+./package.sh          # creates dist/git-identity-switcher-1.0.0.alfredworkflow
+open dist/git-identity-switcher-1.0.0.alfredworkflow   # installs into Alfred
+```
+
+Or just double-click the generated `.alfredworkflow` file in Finder.
+
+---
+
+## Alfred workflow
+
+| Step | Type | Description |
+|------|------|-------------|
+| Keyword | `git-id` | Opens the identity picker |
+| Script Filter | `list-identities.sh` | Fuzzy-searches your profiles |
+| Run Script | `switch-identity.sh` | Applies the chosen identity |
+| Notification | macOS notification | Confirms the switch |
+
+### Customising the keyword
+
+Open Alfred Preferences → Workflows → Git Identity Switcher and double-click
+the **Script Filter** object.  Change the keyword from `git-id` to anything
+you prefer.
+
+---
+
+## CLI usage (without Alfred)
+
+```bash
+# Show the currently active global git identity
+get-current-identity
+
+# Switch to the "work" profile
+switch-identity work
+
+# Switch to "personal" (scoped to the current repo only)
+switch-identity personal --local
+```
+
+---
+
+## Project structure
+
+```
+git-identity-switcher/
+├── install.sh                  # copies scripts to PATH, creates config
+├── package.sh                  # zips alfred-workflow/ into .alfredworkflow
+├── identities.example.json     # template for ~/.git-identities.json
+├── scripts/
+│   ├── switch-identity.sh      # switch global (or local) git identity
+│   ├── list-identities.sh      # Alfred Script Filter JSON output
+│   └── get-current-identity.sh # print current git user.name + email
+└── alfred-workflow/
+    └── info.plist              # Alfred workflow definition
+```
+
+---
+
+## Requirements
+
+- **macOS** with **Alfred 4 or 5** (Powerpack required for custom workflows)
+- **Python 3** (ships with macOS 12+; otherwise install via Homebrew)
+- **git**
+
+---
+
+## Adding a new identity
+
+Edit `~/.git-identities.json` and add a new object to the `identities` array:
+
+```json
+{
+  "name":     "freelance",
+  "username": "Jane Doe",
+  "email":    "jane@freelance.example.com"
+}
+```
+
+No restart needed — Alfred and the CLI scripts read the file on every run.

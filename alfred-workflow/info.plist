@@ -54,7 +54,7 @@ Setup:
   3. Import this workflow by double-clicking the .alfredworkflow file.</string>
 
   <key>category</key>
-  <string>Tools</string>
+  <string>Productivity</string>
 
   <key>uidata</key>
   <dict/>
@@ -151,7 +151,7 @@ PYEOF</string>
         <integer>2</integer>
 
         <key>argumenttype</key>
-        <integer>0</integer>
+        <integer>1</integer>
       </dict>
     </dict>
 

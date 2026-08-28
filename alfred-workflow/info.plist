@@ -25,6 +25,9 @@
 <dict>
 
   <!-- ── Workflow metadata ────────────────────────────────────────────── -->
+  <key>bundleid</key>
+  <string>com.okso-hub.git-identity-switcher</string>
+
   <key>name</key>
   <string>Git Identity Switcher</string>
 
@@ -32,7 +35,7 @@
   <string>Quickly switch your global git user.name and user.email between saved identities.</string>
 
   <key>createdby</key>
-  <string>git-identity-switcher</string>
+  <string>Okan Sönmez</string>
 
   <key>webaddress</key>
   <string>https://github.com/okso-hub/git-identity-switcher</string>
@@ -43,7 +46,7 @@
   <key>readme</key>
   <string>Switch between git identities (name + email) stored in ~/.git-identities.json.
 
-Trigger: type "git-id" in Alfred, then choose a profile.
+Trigger: type "gid" in Alfred, then choose a profile.
 
 Setup:
   1. Run install.sh once to copy the helper scripts.
@@ -75,7 +78,7 @@ Setup:
       <dict>
         <!-- Keyword the user types in Alfred -->
         <key>keyword</key>
-        <string>git-id</string>
+        <string>gid</string>
 
         <key>title</key>
         <string>Switch Git Identity</string>
@@ -139,7 +142,7 @@ print(json.dumps({"items": items}))
 PYEOF</string>
 
         <key>scriptargtype</key>
-        <integer>1</integer>
+        <integer>0</integer>
 
         <key>queuedelay</key>
         <integer>3</integer>

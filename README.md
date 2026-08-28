@@ -1,18 +1,14 @@
 # git-identity-switcher
 
-An Alfred workflow (+ standalone shell scripts) that lets you switch your
-global `git user.name` and `git user.email` between saved profiles with a
-single command — no more `vim ~/.gitconfig`.
+An Alfred workflow (+ standalone shell scripts) that lets you switch your global `git user.name` and `git user.email` between saved profiles with a single command — no more `vim ~/.gitconfig`.
 
 ---
 
 ## How it works
 
-1. You keep a small JSON file (`~/.git-identities.json`) that lists your git
-   profiles (name, email).
-2. Type `git-id` in Alfred, pick a profile, press **Enter**.
-3. `git config --global user.name` and `git config --global user.email` are
-   updated instantly, and a macOS notification confirms the switch.
+1. You keep a small JSON file (`~/.git-identities.json`) that lists your git profiles (name, email).
+2. Type `gid` in Alfred, pick a profile, press **Enter**.
+3. `git config --global user.name` and `git config --global user.email` are updated instantly, and a macOS notification confirms the switch.
 
 You can also use the scripts directly from the terminal without Alfred.
 
@@ -29,9 +25,7 @@ chmod +x install.sh
 ./install.sh
 ```
 
-`install.sh` copies the three helper scripts to `/usr/local/bin` (or `~/bin`)
-and creates `~/.git-identities.json` from the example file if it does not
-already exist.
+`install.sh` copies the three helper scripts to `/usr/local/bin` (or `~/bin`) and creates `~/.git-identities.json` from the example file if it does not already exist.
 
 ### 2 — Edit `~/.git-identities.json`
 
@@ -71,16 +65,14 @@ Or just double-click the generated `.alfredworkflow` file in Finder.
 
 | Step | Type | Description |
 |------|------|-------------|
-| Keyword | `git-id` | Opens the identity picker |
+| Keyword | `gid` | Opens the identity picker |
 | Script Filter | `list-identities.sh` | Fuzzy-searches your profiles |
 | Run Script | `switch-identity.sh` | Applies the chosen identity |
 | Notification | macOS notification | Confirms the switch |
 
 ### Customising the keyword
 
-Open Alfred Preferences → Workflows → Git Identity Switcher and double-click
-the **Script Filter** object.  Change the keyword from `git-id` to anything
-you prefer.
+Open Alfred Preferences → Workflows → Git Identity Switcher and double-click the **Script Filter** object.  Change the keyword from `gid` to anything you prefer.
 
 ---
 

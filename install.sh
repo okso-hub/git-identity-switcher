@@ -42,6 +42,17 @@ else
   echo "Skipped: $IDENTITIES_FILE already exists"
 fi
 
+# ── Optional: install the SwiftBar menu bar plugin ─────────────────────────
+SWIFTBAR_DIR="$(defaults read com.ameba.SwiftBar PluginDirectory 2>/dev/null || true)"
+if [ -n "$SWIFTBAR_DIR" ] && [ -d "$SWIFTBAR_DIR" ]; then
+  cp "$REPO_DIR/menubar/git-identity.5s.sh" "$SWIFTBAR_DIR/"
+  chmod +x "$SWIFTBAR_DIR/git-identity.5s.sh"
+  echo "Installed menu bar plugin: $SWIFTBAR_DIR/git-identity.5s.sh (SwiftBar → Refresh)"
+else
+  echo "Menu bar (optional): install SwiftBar (brew install --cask swiftbar), then copy"
+  echo "  menubar/git-identity.5s.sh into its plugin folder."
+fi
+
 echo ""
 echo "✓ Installation complete."
 echo ""

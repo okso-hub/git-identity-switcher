@@ -7,7 +7,7 @@ An Alfred workflow (+ standalone shell scripts) that lets you switch your global
 ## How it works
 
 1. You keep a small JSON file (`~/.git-identities.json`) that lists your git profiles (name, email).
-2. Type `gid` in Alfred, pick a profile, press **Enter**.
+2. Type `gid` in Alfred — the active profile is marked with a `●` and shown first — pick a profile, press **Enter**.
 3. `git config --global user.name` and `git config --global user.email` are updated instantly, and a macOS notification confirms the switch.
 
 You can also use the scripts directly from the terminal without Alfred.
@@ -91,6 +91,28 @@ switch-identity personal --local
 
 ---
 
+## Menu bar (optional)
+
+Show the active profile in the macOS menu bar and switch from a dropdown using
+[SwiftBar](https://github.com/swiftbar/SwiftBar) (or xbar).
+
+```bash
+brew install --cask swiftbar
+```
+
+On first launch SwiftBar asks for a plugin folder. Then either re-run
+`./install.sh` (it copies the plugin automatically if SwiftBar is set up) or
+copy it manually:
+
+```bash
+cp menubar/git-identity.5s.sh "<your-swiftbar-plugin-folder>/"
+```
+
+The menu bar shows `⑂ <profile>`; its dropdown lists all identities (active one
+ticked) and switches on click. It refreshes every 5 seconds.
+
+---
+
 ## Project structure
 
 ```
@@ -102,8 +124,10 @@ git-identity-switcher/
 │   ├── switch-identity.sh      # switch global (or local) git identity
 │   ├── list-identities.sh      # Alfred Script Filter JSON output
 │   └── get-current-identity.sh # print current git user.name + email
-└── alfred-workflow/
-    └── info.plist              # Alfred workflow definition
+├── alfred-workflow/
+│   └── info.plist              # Alfred workflow definition
+└── menubar/
+    └── git-identity.5s.sh      # SwiftBar/xbar menu bar plugin (optional)
 ```
 
 ---

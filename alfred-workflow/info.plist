@@ -105,11 +105,14 @@ if [ ! -f "$IDENTITIES_FILE" ]; then
   exit 0
 fi
 
-python3 - "{query}" "$IDENTITIES_FILE" &lt;&lt;'PYEOF'
+ACTIVE_EMAIL="$(git config --global user.email 2&gt;/dev/null)"
+
+python3 - "{query}" "$IDENTITIES_FILE" "$ACTIVE_EMAIL" &lt;&lt;'PYEOF'
 import json, sys
 
 query           = sys.argv[1].lower()
 identities_file = sys.argv[2]
+active_email    = (sys.argv[3] if len(sys.argv) &gt; 3 else "").strip().lower()
 
 with open(identities_file) as f:
     data = json.load(f)
@@ -123,13 +126,21 @@ for identity in data.get("identities", []):
     if query and query not in name.lower() and query not in username.lower() and query not in email.lower():
         continue
 
+    is_active = bool(active_email) and email.lower() == active_email
+
     items.append({
-        "uid":          name,
-        "title":        name.title(),
-        "subtitle":     f"{username} &lt;{email}&gt;",
+        "title":        ("● " + name.title()) if is_active else name.title(),
+        "subtitle":     (f"{username} &lt;{email}&gt;  —  active now" if is_active
+                         else f"{username} &lt;{email}&gt;"),
         "arg":          name,
         "autocomplete": name,
+        "_active":      is_active,
     })
+
+# Active identity first, rest in file order
+items.sort(key=lambda i: not i["_active"])
+for i in items:
+    i.pop("_active", None)
 
 if not items:
     items.append({

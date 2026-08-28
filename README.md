@@ -59,6 +59,11 @@ open dist/git-identity-switcher-1.0.0.alfredworkflow   # installs into Alfred
 
 Or just double-click the generated `.alfredworkflow` file in Finder.
 
+Alfred shows an import dialog — pick a **Category** (e.g. Productivity) and click
+**Import**. To update an already-installed copy, just import again: Alfred
+recognises it by its bundle id and offers to replace it, so there is no need to
+delete the old one first.
+
 ---
 
 ## Alfred workflow
@@ -96,20 +101,29 @@ switch-identity personal --local
 Show the active profile in the macOS menu bar and switch from a dropdown using
 [SwiftBar](https://github.com/swiftbar/SwiftBar) (or xbar).
 
-```bash
-brew install --cask swiftbar
-```
+1. Install and launch SwiftBar:
 
-On first launch SwiftBar asks for a plugin folder. Then either re-run
-`./install.sh` (it copies the plugin automatically if SwiftBar is set up) or
-copy it manually:
+   ```bash
+   brew install --cask swiftbar
+   open -a SwiftBar
+   ```
 
-```bash
-cp menubar/git-identity.5s.sh "<your-swiftbar-plugin-folder>/"
-```
+2. On first launch SwiftBar asks you to **choose a plugin folder** — pick or
+   create any folder (e.g. `~/.swiftbar`).
 
-The menu bar shows `⑂ <profile>`; its dropdown lists all identities (active one
-ticked) and switches on click. It refreshes every 5 seconds.
+3. Install the plugin into that folder — just re-run `./install.sh`, which
+   copies it automatically once SwiftBar is set up:
+
+   ```bash
+   ./install.sh
+   ```
+
+   (Or copy it manually: `cp menubar/git-identity.5s.sh "<your-plugin-folder>/"`.)
+
+4. In SwiftBar, click **Refresh**.
+
+The menu bar then shows `⑂ <profile>`; its dropdown lists all identities (active
+one ticked) and switches on click. It refreshes every 5 seconds.
 
 ---
 

@@ -1,5 +1,9 @@
 # git-identity-switcher
 
+<p align="center">
+  <img src="assets/logo.png" alt="git-identity-switcher logo" width="180">
+</p>
+
 An Alfred workflow (+ standalone shell scripts) that lets you switch your global `git user.name` and `git user.email` between saved profiles with a single command — no more `vim ~/.gitconfig`.
 
 ---

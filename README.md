@@ -1,3 +1,6 @@
+> [!NOTE]
+> **Archived.** This project is no longer maintained. I now manage git identities declaratively in my dotfiles with git's built-in [conditional includes](https://git-scm.com/docs/git-config#_conditional_includes), which pick the right identity per repository automatically. Manual switching is no longer needed.
+
 # git-identity-switcher
 
 <p align="center">
